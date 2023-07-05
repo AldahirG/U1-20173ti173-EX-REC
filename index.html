@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Carrito de Compras</title>
+</head>
+<body>
+  <h1>Carrito de Compras</h1>
+
+  <form id="product-form">
+    <label for="name-input">Nombre:</label>
+    <input type="text" id="name-input" required><br>
+
+    <label for="price-input">Precio Unidad:</label>
+    <input type="number" id="price-input" min="0" step="0.01" required><br>
+
+    <label for="quantity-input">Cantidad:</label>
+    <input type="number" id="quantity-input" min="0" required><br>
+
+    <button type="submit">Agregar Producto</button>
+  </form>
+
+  <table id="cart-table">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Precio Unidad</th>
+        <th>Cantidad</th>
+        <th>Costo</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3">Subtotal:</td>
+        <td id="subtotal-cell"></td>
+      </tr>
+      <tr>
+        <td colspan="3">Total:</td>
+        <td id="total-cell"></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <button id="close-cart-btn">Cerrar Carrito</button>
+
+  <script>
+    const cart = [];
+
+    function generateFolio() {
+      return Math.random().toString(36).substring(2, 10);
+    }
+
+    function calculateCost(quantity, price) {
+      return quantity * price;
+    }
+
+    function addProductToCart(event) {
+      event.preventDefault();
+
+      const nameInput = document.getElementById('name-input');
+      const priceInput = document.getElementById('price-input');
+      const quantityInput = document.getElementById('quantity-input');
+
+      const name = nameInput.value;
+      const price = parseFloat(priceInput.value);
+      const quantity = parseInt(quantityInput.value);
+
+      const cost = calculateCost(quantity, price);
+
+      const product = {
+        name,
+        price,
+        quantity,
+        cost
+      };
+
+      cart.push(product);
+
+      
+      nameInput.value = '';
+      priceInput.value = '';
+      quantityInput.value = '';
+
+      updateCartTable();
+
+      calculateSubtotal();
+
+      calculateTotal();
+    }
+
+    function updateCartTable() {
+      const tableBody = document.querySelector('#cart-table tbody');
+      tableBody.innerHTML = '';
+
+      for (const product of cart) {
+        const row = document.createElement('tr');
+        const nameCell = document.createElement('td');
+        const priceCell = document.createElement('td');
+        const quantityCell = document.createElement('td');
+        const costCell = document.createElement('td');
+
+        nameCell.textContent = product.name;
+        priceCell.textContent = product.price.toFixed(2);
+        quantityCell.textContent = product.quantity;
+        costCell.textContent = product.cost.toFixed(2);
+
+        row.appendChild(nameCell);
+        row.appendChild(priceCell);
+        row.appendChild(quantityCell);
+        row.appendChild(costCell);
+
+        tableBody.appendChild(row);
+      }
+    }
+
+    function calculateSubtotal() {
+      const subtotalCell = document.getElementById('subtotal-cell');
+      let subtotal = 0;
+
+      for (const product of cart) {
+        subtotal += product.cost;
+      }
+
+      subtotalCell.textContent = subtotal.toFixed(2);
+    }
+    function calculateTotal() {
+      const totalCell = document.getElementById('total-cell');
+      const subtotal = parseFloat(document.getElementById('subtotal-cell').textContent);
+      const iva = subtotal * 0.16;
+      const total = subtotal + iva;
+
+      totalCell.textContent = total.toFixed(2);
+    }
+    const productForm = document.getElementById('product-form');
+    productForm.addEventListener('submit', addProductToCart);
+    const closeCartBtn = document.getElementById('close-cart-btn');
+    closeCartBtn.addEventListener('click', () => {
+      calculateTotal();
+      alert('Total a pagar: $' + document.getElementById('total-cell').textContent);
+    });
+  </script>
+</body>
+</html>
